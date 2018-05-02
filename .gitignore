@@ -1,0 +1,9 @@
+.vs
+*.TMP
+*.exp
+*.iobj
+*.ipdb
+*.pdb
+*.obj
+*.log
+*.db
