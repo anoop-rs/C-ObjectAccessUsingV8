@@ -9,3 +9,5 @@
 *.db
 *.tlog
 *.idb
+*.ilk
+*.exe
