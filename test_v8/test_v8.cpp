@@ -10,10 +10,12 @@
 #include "v8-debug.h"
 #include "src\base\platform\platform.h"
 #include <thread>
+
 using namespace v8;
 
 v8::Isolate* isolate;
 v8::Handle<v8::FunctionTemplate> point_template;
+static v8::Global<v8::ObjectTemplate> request_template;
 
 struct Point
 {
@@ -31,16 +33,45 @@ Point::~Point()
 {
 }
 
+Point* UnwrapPoint(Local<Object> obj)
+{
+	Local<External> field = Local<External>::Cast(obj->GetInternalField(0));
+	auto ptr = field->Value();
+	auto pointPtr = static_cast<Point*>(ptr);
+	return pointPtr;
+}
+
+void AccessorGetterCallbackFunction(v8::Local<v8::String> property,
+	const v8::PropertyCallbackInfo<v8::Value>& info)
+{
+	auto pointPtr = UnwrapPoint(info.Holder);
+	info.GetReturnValue().Set()
+}
+
 v8::Handle<v8::Object> WrapPoint(Point* ptoWrap)
 {
-	EscapableHandleScope handle_scope(isolate);
-	auto point_instance = point_template->New(isolate);
-	//point_instance->Set SetInternalField(0, External::New(isolate, ptoWrap));
-	return handle_scope.Escape(point_instance);
+	if (isolate != nullptr)
+	{
+		v8::EscapableHandleScope  scope(isolate);
+		if (request_template.IsEmpty())
+		{
+			v8::Local<v8::ObjectTemplate> raw_template = v8::ObjectTemplate::New(isolate);
+			raw_template->SetInternalFieldCount(1);
+			raw_template->SetAccessor(v8::String::NewFromUtf8(isolate, "Point", v8::NewStringType::kNormal).ToLocalChecked(), AccessorGetterCallbackFunction);
+			request_template.Reset(isolate, raw_template);
+		}
+		v8::Local<v8::ObjectTemplate> templ = v8::Local<v8::ObjectTemplate>::New(isolate, request_template);
+		Local<Object> result = templ->NewInstance(isolate->GetCurrentContext()).ToLocalChecked();
+		Local<External> ptr = External::New(isolate, ptoWrap);
+		result->SetInternalField(0, ptr);
+		return scope.Escape(result);
+	}
+	else
+		return v8::Handle<v8::Object>();
 }
 
 
-void constructorCall(const FunctionCallbackInfo<Value>& info)
+void constructorCall(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
 	// throw if called without `new'
 	if (!info.IsConstructCall())
@@ -130,7 +161,7 @@ int main(int argc, char* argv[]) {
 		point_instance_template->SetAccessor(v8::String::NewFromUtf8(isolate, "y"), GetPointY, SetPointY);
 
 		auto global = context->Global();
-		auto function = v8::FunctionTemplate::New(isolate,constructorCall);
+		auto function = v8::FunctionTemplate::New(isolate, constructorCall);
 		global->Set(v8::String::NewFromUtf8(isolate, "Point"), function->GetFunction());
 		//
 
