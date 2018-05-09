@@ -15,7 +15,7 @@ using namespace v8;
 
 v8::Isolate* isolate;
 v8::Handle<v8::FunctionTemplate> point_template;
-static v8::Global<v8::ObjectTemplate> request_template;
+static v8::Global<v8::ObjectTemplate> point_object_template;
 
 struct Point
 {
@@ -53,15 +53,15 @@ v8::Handle<v8::Object> WrapPoint(Point* ptoWrap)
 	if (isolate != nullptr)
 	{
 		v8::EscapableHandleScope  scope(isolate);
-		if (request_template.IsEmpty())
-		{
-			v8::Local<v8::ObjectTemplate> raw_template = v8::ObjectTemplate::New(isolate);
-			raw_template->SetInternalFieldCount(1);
-			raw_template->SetAccessor(v8::String::NewFromUtf8(isolate, "Point", v8::NewStringType::kNormal).ToLocalChecked(), AccessorGetterCallbackFunction);
-			request_template.Reset(isolate, raw_template);
-		}
-		v8::Local<v8::ObjectTemplate> templ = v8::Local<v8::ObjectTemplate>::New(isolate, request_template);
-		Local<Object> result = templ->NewInstance(isolate->GetCurrentContext()).ToLocalChecked();
+		/*if (point_object_template.IsEmpty())
+		{*/
+		v8::Local<v8::ObjectTemplate> point_object_template = v8::ObjectTemplate::New(isolate);
+		point_object_template->SetInternalFieldCount(1);
+		//Set some handlers
+		//point_object_template.Reset(isolate, raw_template);
+	/*}*/
+	//v8::Local<v8::ObjectTemplate> templ = v8::Local<v8::ObjectTemplate>::New(isolate, point_object_template);
+		Local<Object> result = point_object_template->NewInstance(isolate->GetCurrentContext()).ToLocalChecked();
 		Local<External> ptr = External::New(isolate, ptoWrap);
 		result->SetInternalField(0, ptr);
 		return scope.Escape(result);
@@ -73,25 +73,18 @@ v8::Handle<v8::Object> WrapPoint(Point* ptoWrap)
 
 void constructorCall(const v8::FunctionCallbackInfo<v8::Value>& info)
 {
-	// throw if called without `new'
-	if (!info.IsConstructCall())
-		//return ThrowException(String::New("Cannot call constructor as function"));
-		std::cout << "not from constr" << std::endl;
-
-	//start a handle scope
-	v8::HandleScope handle_scope(isolate);
+	v8::HandleScope handle_scope(info.GetIsolate());
 
 	//get an x and y
-	double x = info[0]->NumberValue();
-	double y = info[1]->NumberValue();
+	auto x = static_cast<int>(info[0]->NumberValue());
+	auto y = static_cast<int>(info[1]->NumberValue());
 
 	//generate a new point
 	Point *point = new Point(x, y);
 
-	//return the wrapped point
-	//return WrapPoint(point);
-	auto wrapped = WrapPoint(point);
-	info.GetReturnValue().Set(wrapped);
+	auto pointObject = WrapPoint(point);
+	info.GetReturnValue().Set(pointObject);
+
 	return;
 }
 
@@ -148,6 +141,8 @@ int main(int argc, char* argv[]) {
 		v8::Isolate::Scope isolate_scope(isolate);
 		// Create a stack-allocated handle scope.
 		v8::HandleScope handle_scope(isolate);
+		/*auto global = ObjectTemplate::New(isolate);
+		global->Set(String::NewFromUtf8(GetIsolate(), "log", NewStringType::kNormal).ToLocalChecked(), )*/
 		// Create a new context.
 		v8::Local<v8::Context> context = v8::Context::New(isolate);
 		// Enter the context for compiling and running the hello world script.
@@ -161,9 +156,8 @@ int main(int argc, char* argv[]) {
 		point_instance_template->SetAccessor(v8::String::NewFromUtf8(isolate, "y"), GetPointY, SetPointY);
 
 		auto global = context->Global();
-		auto function = v8::FunctionTemplate::New(isolate, constructorCall);
-		global->Set(v8::String::NewFromUtf8(isolate, "Point"), function->GetFunction());
-		//
+
+		global->Set(v8::String::NewFromUtf8(isolate, "Point", v8::NewStringType::kNormal).ToLocalChecked(), v8::FunctionTemplate::New(isolate, constructorCall));
 
 		// Create a string containing the JavaScript source code.
 		v8::Local<v8::String> source =
