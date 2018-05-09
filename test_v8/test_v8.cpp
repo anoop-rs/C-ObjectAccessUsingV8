@@ -15,7 +15,6 @@ using namespace v8;
 using namespace std;
 
 v8::Isolate* isolate;
-//static v8::Global<v8::ObjectTemplate> point_object_template;
 
 struct Point
 {
@@ -45,10 +44,9 @@ void AccessorGetterCallbackFunction(Local<Name> property, const PropertyCallback
 {
 	auto pointPtr = UnwrapPoint(info.Holder());
 	bool bIsString = property->IsString();
-	string accessed_property;// = v8::String::Utf8Value(Local<Value>());
+	string accessed_property;
 	auto value = Local<String>::Cast(property);
 	String::Utf8Value utf8_value(Local<String>::Cast(property));
-	//accessed_property = string(*(String::Utf8Value(Local<String>::Cast(property))));
 	accessed_property = *utf8_value;
 	if (accessed_property == "x")
 		info.GetReturnValue().Set(v8::Integer::New(info.GetIsolate(), pointPtr->x_));
@@ -61,13 +59,9 @@ v8::Handle<v8::Object> WrapPoint(Point* ptoWrap)
 	if (isolate != nullptr)
 	{
 		v8::EscapableHandleScope  scope(isolate);
-		/*if (point_object_template.IsEmpty())
-		{*/
 		v8::Local<v8::ObjectTemplate> point_object_template = v8::ObjectTemplate::New(isolate);
 		point_object_template->SetInternalFieldCount(1);
-		//TODO: Create handlers
 		point_object_template->SetHandler(v8::NamedPropertyHandlerConfiguration(AccessorGetterCallbackFunction));
-
 		Local<Object> result = point_object_template->NewInstance(isolate->GetCurrentContext()).ToLocalChecked();
 		Local<External> ptr = External::New(isolate, ptoWrap);
 		result->SetInternalField(0, ptr);
@@ -117,17 +111,6 @@ int main(int argc, char* argv[]) {
 		v8::Local<v8::Context> context = v8::Context::New(isolate, 0, global);
 		// Enter the context for compiling and running the hello world script.
 		v8::Context::Scope context_scope(context);
-
-		//
-		/*point_template = v8::FunctionTemplate::New(isolate);
-		v8::Handle<v8::ObjectTemplate> point_instance_template = point_template->InstanceTemplate();
-		point_instance_template->SetInternalFieldCount(1);
-		point_instance_template->SetAccessor(v8::String::NewFromUtf8(isolate, "x"), GetPointX, SetPointX);
-		point_instance_template->SetAccessor(v8::String::NewFromUtf8(isolate, "y"), GetPointY, SetPointY);*/
-
-		//auto global = context->Global();
-
-		/*global->Set(v8::String::NewFromUtf8(isolate, "Point", v8::NewStringType::kNormal).ToLocalChecked(), v8::FunctionTemplate::New(isolate, constructorCall));*/
 
 		// Create a string containing the JavaScript source code.
 		v8::Local<v8::String> source =
