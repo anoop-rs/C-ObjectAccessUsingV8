@@ -61,15 +61,14 @@ v8::Handle<v8::Object> WrapPoint(v8::Isolate* isolate, Point* ptoWrap)
 	if (isolate != nullptr)
 	{
 		v8::EscapableHandleScope scope(isolate);
-		v8::Local<v8::ObjectTemplate> point_object_template = v8::ObjectTemplate::New(isolate);
-		point_object_template->SetInternalFieldCount(1);
-		point_object_template->SetHandler(
-			v8::NamedPropertyHandlerConfiguration(AccessorGetterCallbackFunction));
-		Local<Object> result
-			= point_object_template->NewInstance(isolate->GetCurrentContext()).ToLocalChecked();
+		auto point_function_template = v8::FunctionTemplate::New(isolate);
+		auto instance_template = point_function_template->InstanceTemplate();
+		instance_template->SetInternalFieldCount(1);
+		instance_template->SetHandler(v8::NamedPropertyHandlerConfiguration(AccessorGetterCallbackFunction));
+		auto result = instance_template->NewInstance();
 		Local<External> ptr = External::New(isolate, ptoWrap);
 		result->SetInternalField(0, ptr);
-		return scope.Escape(result);
+		return scope.Escape(result); 
 	}
 	else
 		return v8::Handle<v8::Object>();
@@ -123,7 +122,7 @@ int main(int argc, char* argv[])
 			v8::NewStringType::kNormal).ToLocalChecked(), function->GetFunction());
 		// Create a string containing the JavaScript source code.
 		v8::Local<v8::String> source = v8::String::NewFromUtf8(isolate, "function main(args){ \
-				var p = Point(1,2); \
+				var p = new Point(1,2); \
 				var x = p.x; \
 				var y = p.y; \
 				var a = x; \
