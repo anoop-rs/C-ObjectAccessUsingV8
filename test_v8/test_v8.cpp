@@ -121,7 +121,7 @@ int main(int argc, char* argv[])
 		globalObj->Set(context, v8::String::NewFromUtf8(isolate, u8"Point",
 			v8::NewStringType::kNormal).ToLocalChecked(), function->GetFunction());
 		// Create a string containing the JavaScript source code.
-		v8::Local<v8::String> source = v8::String::NewFromUtf8(isolate, "function main(args){ \
+		v8::Local<v8::String> source = v8::String::NewFromUtf8(isolate, "function func(args){ \
 				var p = new Point(1,2); \
 				var x = p.x; \
 				var y = p.y; \
@@ -138,7 +138,7 @@ int main(int argc, char* argv[])
 		script->Run(context).ToLocalChecked();
 
 		v8::Local<v8::String> jsStrMainFunction
-			= v8::String::NewFromUtf8(isolate, u8"main", v8::NewStringType::kNormal)
+			= v8::String::NewFromUtf8(isolate, u8"func", v8::NewStringType::kNormal)
 			.ToLocalChecked();
 
 		v8::Local<v8::Array> jsArgs = v8::Array::New(isolate, 2);
