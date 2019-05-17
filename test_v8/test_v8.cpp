@@ -7,8 +7,8 @@
 #include <string.h>
 #include "libplatform/libplatform.h"
 #include "v8.h"
-#include "v8-debug.h"
-#include "src\base\platform\platform.h"
+//#include "v8-debug.h"
+//#include "src\base\platform\platform.h"
 #include <thread>
 
 using namespace v8;
@@ -48,7 +48,7 @@ void AccessorGetterCallbackFunction(Local<Name> property, const PropertyCallback
 	bool bIsString = property->IsString();
 	string accessed_property;
 	auto value = Local<String>::Cast(property);
-	String::Utf8Value utf8_value(Local<String>::Cast(property));
+	String::Utf8Value utf8_value(info.GetIsolate(), Local<String>::Cast(property));
 	accessed_property = *utf8_value;
 	if (accessed_property == "x")
 		info.GetReturnValue().Set(v8::Integer::New(info.GetIsolate(), pointPtr->x_));
@@ -68,7 +68,7 @@ v8::Handle<v8::Object> WrapPoint(v8::Isolate* isolate, Point* ptoWrap)
 		auto result = instance_template->NewInstance();
 		Local<External> ptr = External::New(isolate, ptoWrap);
 		result->SetInternalField(0, ptr);
-		return scope.Escape(result); 
+		return scope.Escape(result);
 	}
 	else
 		return v8::Handle<v8::Object>();
@@ -80,8 +80,8 @@ void constructorCall(const v8::FunctionCallbackInfo<v8::Value>& info)
 	v8::HandleScope handle_scope(info.GetIsolate());
 
 	// get an x and y
-	auto x = static_cast<int>(info[0]->NumberValue());
-	auto y = static_cast<int>(info[1]->NumberValue());
+	auto x = static_cast<int>(info[0]->NumberValue(info.GetIsolate()->GetCurrentContext()).ToChecked());
+	auto y = static_cast<int>(info[1]->NumberValue(info.GetIsolate()->GetCurrentContext()).ToChecked());
 
 	// generate a new point
 	Point* point = new Point(x, y);
@@ -156,7 +156,7 @@ int main(int argc, char* argv[])
 		if (maybeResult.ToLocal(&funcResult))
 		{
 			// Convert the result to an UTF8 string and print it.
-			v8::String::Utf8Value utf8(funcResult);
+			v8::String::Utf8Value utf8(isolate, funcResult);
 			printf("%s\n", *utf8);
 		}
 	}

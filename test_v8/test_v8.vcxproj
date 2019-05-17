@@ -106,14 +106,14 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>D:\75020407\WS\TIA\_Src\RTNG\dev\T_RTNG_A\contributions\Google\JS\v8_6.1.534.32_WIN32-VS14-64\v8;D:\75020407\WS\TIA\_Src\RTNG\dev\T_RTNG_A\contributions\Google\JS\v8_6.1.534.32_WIN32-VS14-64\v8\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\WS\TIA\_Src\RTNG\dev\T_RTNG_A\contributions\Google\JS\v8_7.1.302.25\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;WinMM.lib;%(AdditionalDependencies);v8.dll.lib;icui18n.dll.lib;icuuc.dll.lib;v8_libbase.dll.lib;v8_libplatform.dll.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>D:\75020407\WS\TIA\_Src\RTNG\dev\T_RTNG_A\contributions\Google\JS\v8_6.1.534.32_WIN32-VS14-64\build\Debug</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\WS\TIA\_Src\RTNG\dev\T_RTNG_A\contributions\Google\JS\v8_7.1.302.25\Binaries\WIN32-VS15-64\Debug</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -147,7 +147,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>D:\WS\TIA\_Src\RTNG\dev\T_RTNG_A\contributions\Google\JS\v8_5.0.71.32_WIN32-VS14-64\v8\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\WS\TIA\_Src\RTNG\dev\T_RTNG_A\contributions\Google\JS\v8_7.1.302.25\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
